@@ -1,6 +1,3 @@
-# README_CN.md（完整版）
-
-```markdown
 # Groupwork Ultra Agent（完整版中文说明）
 
 Groupwork Ultra Agent 是一个**本地运行的多智能体 AI 系统**，
