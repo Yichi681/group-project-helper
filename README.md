@@ -1,6 +1,3 @@
-# 📄 README.md (English)
-
-```markdown
 # AI Group Team Simulator
 
 A multi-agent AI tool that simulates a **group of teammates** using different large language models (LLMs), allowing **one single user** to achieve group-level planning and ideation capability for academic group assignments.
