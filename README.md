@@ -1,183 +1,214 @@
-# AI Group Team Simulator
+# Groupwork Ultra Agent
 
-A multi-agent AI tool that simulates a **group of teammates** using different large language models (LLMs), allowing **one single user** to achieve group-level planning and ideation capability for academic group assignments.
+Groupwork Ultra Agent is a **local, multi-agent AI orchestration system** designed to simulate
+a full university group-project workflow — enabling a **single student** to reach
+the organizational and analytical capacity of a real multi-person group.
 
-This project is designed to reduce coordination overhead in group work and to help a single student:
-- structure complex assignments,
-- identify missing parts and weaknesses,
-- design realistic execution plans,
-- and generate a refined Markdown outline through multi-round AI discussion.
-
----
-
-## ✨ Core Idea
-
-> **One human + multiple AI models = a virtual group**
-
-Instead of real group members, this tool assigns different roles to different AI models:
-
-- **Leader** – focuses on global structure and synthesis  
-- **Critic** – challenges assumptions and finds weaknesses  
-- **Researcher** – adds concrete methods, data sources, and execution details  
-
-They:
-1. Read the same course background and assignment requirements  
-2. Independently propose plans  
-3. Critique and rewrite each other’s drafts over multiple rounds  
-4. Produce a final, integrated Markdown document  
+This project focuses on **process automation, deliberation quality, and synthesis**,
+rather than blind content generation.
 
 ---
 
-## 📁 Project Structure
+## 1. Motivation
 
-```
+Group assignments often suffer from:
+- Coordination friction
+- Uneven contribution
+- Awkward or superficial discussion
+- Time wasted on logistics instead of thinking
 
-.
-├── ai_group_team.py
-├── Background_Information/
-│   ├── syllabus.md
-│   ├── lecture_notes.txt
-│   └── ...
-├── Assignment_Requirement/
-│   ├── assignment_prompt.txt
-│   ├── rubric.md
-│   └── ...
-├── README.md
-└── README_CN.md
+At the same time, modern AI models excel at:
+- Structured reasoning
+- Draft comparison
+- Iterative refinement
+- Role-based critique
 
+**Groupwork Ultra Agent combines these strengths** to simulate a realistic group process,
+where different “members” (AI agents) play distinct roles and debate across multiple rounds.
+
+---
+
+## 2. Core Idea
+
+> **One human + multiple AI agents = comparable capacity to a real student group**
+
+Each AI agent:
+- Uses a **different model**
+- Has a **clear role**
+- Produces structured outputs
+- Participates in **multi-round deliberation**
+
+A dedicated **Controller model** evaluates the discussion quality and decides
+whether more rounds are needed.
+
+---
+
+## 3. System Architecture
+
+### 3.1 Agent Roles
+
+Typical agents include:
+
+- **Leader**
+  - Merges proposals
+  - Resolves conflicts
+  - Produces consolidated outputs
+
+- **Researcher**
+  - Grounds ideas in provided documents
+  - Focuses on feasibility and data sources
+
+- **Methodologist**
+  - Evaluates research design and structure
+  - Flags weak logic or missing components
+
+- **Critic**
+  - Challenges assumptions
+  - Identifies risks and gaps
+
+- **Editor**
+  - Improves clarity, coherence, and presentation quality
+
+- **Red Team (optional)**
+  - Stress-tests arguments
+  - Looks for grading or academic risks
+
+- **Controller (Judge Model)**
+  - Evaluates whether the discussion has converged
+  - Decides: continue another round or stop
+
+---
+
+## 4. Multi-Round Deliberation Loop
+
+Each deliberation stage (topics, tasks, final draft) follows this loop:
+
+1. Each agent independently proposes or refines outputs (JSON-structured)
+2. Leader agent merges and deduplicates
+3. Controller model evaluates:
+   - Coverage completeness
+   - Internal consistency
+   - Alignment with assignment requirements
+4. If quality is insufficient → next round with focused instructions
+5. Loop stops only when Controller approves
+
+This prevents:
+- Premature convergence
+- Single-model bias
+- Shallow first-pass answers
+
+---
+
+## 5. Retrieval-Augmented Generation (RAG)
+
+The system supports **local document ingestion**:
+
+### Supported formats
+- PDF
+- PPTX
+- DOCX / DOC
+- TXT
+- Markdown
+
+### Typical sources
+- Course slides
+- Assignment briefs
+- Rubrics
+- Lecture notes
+- Background readings
+
+Documents are:
+- Parsed
+- Chunked
+- Indexed locally (SQLite + FTS)
+- Referenced during deliberation
+
+Agents are explicitly instructed **not to invent citations or facts**.
+
+---
+
+## 6. Supported Models
+
+Via **OpenRouter-compatible API**:
+
+Examples:
+- `openai/gpt-oss-20b`
+- `openai/gpt-oss-120b`
+- `x-ai/grok-4.1-fast`
+- `google/gemini-3-pro-preview`
+
+Different agents can use **different models** simultaneously.
+
+---
+
+## 7. Workflow Overview
+
+```text
+init
+ ├─ ingest (documents)
+ ├─ propose-topics (multi-agent deliberation)
+ ├─ generate-tasks
+ ├─ generate-final
+ └─ export / serve
 ````
 
-### Background_Information/
-Put **course-level context** here:
-- syllabus
-- lecture notes
-- key concepts
-- methodological guidance
+### Autopilot Mode
 
-### Assignment_Requirement/
-Put **task-specific requirements** here:
-- assignment description
-- grading rubric
-- templates / required sections
-- constraints (word count, format, deadline)
-
-All readable text files (`.txt`, `.md`) in these folders will be loaded and provided to the AI models.
+Runs the entire pipeline automatically with minimal human input.
 
 ---
 
-## 🔧 Requirements
-
-- Python 3.9+
-- One dependency:
-```bash
-pip install requests
-````
-
----
-
-## 🔑 API Configuration
-
-This tool supports **any OpenAI-compatible API**.
-
-### Supported API keys (priority order):
-
-1. `--api-key` CLI argument
-2. `LLM_API_KEY`
-3. `OPENAI_API_KEY`
-4. `OPENROUTER_API_KEY`
-
-Example (recommended):
+## 8. Example Usage
 
 ```bash
-export LLM_API_KEY="your_api_key_here"
+pip install -r requirements.txt
+export OPENROUTER_API_KEY=your_api_key
+
+python main.py init \
+  --name "AI Groupwork" \
+  --members "Leader,Researcher,Critic,Editor" \
+  --leader-model openai/gpt-oss-20b \
+  --critic-model openai/gpt-oss-120b \
+  --controller-model openai/gpt-oss-120b
+
+python main.py ingest <project_id>
+python main.py propose-topics <project_id> --mode autopilot
+python main.py generate-tasks <project_id> --mode autopilot
+python main.py generate-final <project_id>
 ```
 
 ---
 
-## 🚀 Quick Start (OpenRouter Example)
+## 9. Ethics & Academic Integrity
 
-Using OpenRouter with three different models:
-
-* `openai/gpt-5.2` (Leader)
-* `x-ai/grok-4.1-fast` (Critic)
-* `google/gemini-3-pro-preview` (Researcher)
-
-```bash
-python ai_group_team.py \
-  --api-base https://openrouter.ai/api/v1 \
-  --rounds 3 \
-  --out Final_Group_Report.md
-```
-
-Output:
-
-* `Final_Group_Report.md` – final refined Markdown plan
-
----
-
-## ⚙️ Custom Models / Custom API
-
-### OpenAI official API example
-
-```bash
-python ai_group_team.py \
-  --api-base https://api.openai.com/v1 \
-  --leader-model gpt-4.1 \
-  --critic-model gpt-4.1-mini \
-  --researcher-model gpt-4.1-mini \
-  --rounds 2 \
-  --out Final_Group_Report.md
-```
-
-### Self-hosted or gateway-compatible API
-
-```bash
-python ai_group_team.py \
-  --api-base https://your-gateway.example.com/v1 \
-  --api-key YOUR_KEY \
-  --leader-model model-a \
-  --critic-model model-b \
-  --researcher-model model-c \
-  --rounds 4 \
-  --out result.md
-```
-
----
-
-## 🧠 Recommended Workflow
-
-1. Put all course background into `Background_Information/`
-2. Put assignment details into `Assignment_Requirement/`
-3. Run the script to generate a structured Markdown plan
-4. Manually:
-
-   * verify facts
-   * add references
-   * rewrite in your own academic voice
-   * convert into report / PPT / proposal
-
----
-
-## ⚠️ Academic Integrity Notice
-
-This tool:
-
-* **does NOT replace thinking**
-* **does NOT guarantee factual correctness**
-* **should NOT be used to directly submit AI output as original work**
+This project is **not a ghostwriting tool**.
 
 It is intended for:
 
-* brainstorming
-* outlining
-* structural planning
-* self-review from multiple perspectives
+* Structuring ideas
+* Exploring alternatives
+* Improving organization and clarity
+* Simulating discussion and critique
 
-Always follow your institution’s AI usage policies.
+Users are responsible for:
+
+* Verifying facts
+* Citing sources properly
+* Complying with course AI usage policies
 
 ---
 
-## 📜 License
+## 10. Intended Use Cases
 
-This project is provided for educational and research assistance purposes only.
-No warranty is provided.
+* Humanities and social science group projects
+* Business and management courses
+* Proposal drafting and report structuring
+* PPT outline generation
+* Learning how high-quality group discussions are structured
+
+---
+
+## 11. Disclaimer
+
+This tool automates **process and coordination**, not academic responsibility.
+Final submissions remain the user’s responsibility.
