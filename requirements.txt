@@ -1,0 +1,35 @@
+# ================================
+# Core LLM & API
+# ================================
+openai>=1.40.0
+tiktoken
+python-dotenv
+
+# ================================
+# Web Server
+# ================================
+flask>=3.0.0
+werkzeug>=3.0.0
+
+# ================================
+# Document Parsing
+# ================================
+python-docx
+python-pptx
+pymupdf          # PDF (fast, reliable)
+markdown
+beautifulsoup4  # HTML fallback / cleanup
+
+# ================================
+# Utilities
+# ================================
+pydantic>=2.0.0
+rich             # pretty CLI output
+tqdm             # progress bar
+python-dateutil
+
+# ================================
+# Optional (recommended)
+# ================================
+numpy
+pypdf>=5.0.0
